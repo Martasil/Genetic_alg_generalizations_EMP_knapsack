@@ -169,8 +169,4 @@ def gen_algorithm(nodos, aristas, baldosas, n_pop, maxRep, pc, pm):
         rep += 1
     max_value = max(fitness_values)
     max_index = fitness_values.index(max_value)
-    print(chromosomes[max_index])
-    print(max_value)
     return chromosomes[max_index]
-
-gen_algorithm([1,2,3,4,5,6,7,8,9,10], [[1,9],[1,5],[1,2],[5,6],[1,3],[2,4],[3,4],[5,7],[7,8],[6,8],[2,6],[5,10],[9,10],[3,10],[4,8],[3,7],[9,5]], [[1,2,3,7],[3,5,6],[7,1,1,3],[5,1,1],[2,1,4,5,6],[1,3,6],[4,2,4],[2,3,1],[1,5,6],[5,5,2]], 400, 250, 0.7, 0.01)
