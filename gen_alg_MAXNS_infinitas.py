@@ -128,7 +128,7 @@ def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
             lst = []
             for w in range(0, n_p):
                 lst.append(w)
-            padres_pos = random.choices(lst, fitness_valores, k=2)
+            padres_pos = random.choices(lst, valores_fitness, k=2)
             padres = [cromosomas[padres_pos[0]], cromosomas[padres_pos[1]]]
             # Decidimos si se da una recombinación o no
             x = random.choices([0, 1], weights=[1 - pc, pc])
