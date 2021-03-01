@@ -39,8 +39,7 @@ total_nodos = size4 + size_squared
 
 # Creamos las baldosas del marco:
 for i in range(size4):
-  for j in range(colores_exteriores):
-    baldosas.append([j])
+    baldosas.append([0])
 
 # Creamos los nodos de la instancia
 nodos = []
