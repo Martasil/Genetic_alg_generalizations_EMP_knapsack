@@ -19,7 +19,7 @@ colores_exteriores = colores[1]
 
 line3 = source_file.readline()
 
-# Creamos las baldosas de dentro
+# Creamos las baldosas de los nodos interiores
 for line in source_file:
   stripped_line = line.strip()
   line_list = stripped_line.split()
@@ -39,8 +39,8 @@ total_nodos = size4 + size_squared
 
 # Creamos las baldosas del marco:
 for i in range(size4):
-  baldosas.append([0])
-  baldosas.append([1])
+  for j in range(colores_exteriores):
+    baldosas.append([j])
 
 # Creamos los nodos de la instancia
 nodos = []
