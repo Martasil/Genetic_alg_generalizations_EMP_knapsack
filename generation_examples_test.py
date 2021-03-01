@@ -14,12 +14,12 @@ colores = []
 for s in stripped_line2:
   if s.isdigit():
      colores.append(int(s))
-colores_interiores = colores[0]
-colores_exteriores = colores[1]
+colores_interiores = colores[1]
+colores_exteriores = colores[0]
 
 line3 = source_file.readline()
 
-# Creamos las baldosas de los nodos interiores
+# Obtenemos las baldosas de los nodos interiores
 for line in source_file:
   stripped_line = line.strip()
   line_list = stripped_line.split()
@@ -51,10 +51,14 @@ vecinos = []
 for i in range(total_nodos-1):
   vecinos.append([])
 
+# Vamos a contar el número de aristas
+num_aristas = (size*4) + 2*(size-1)*size
+
 # Creamos la lista de vecinos para los nodos del marco
 
 # Fila superior marco
 for i in range(size):
+
   vecinos[i].append(i + size4 + 1)
 
 # Fila derecha marco
@@ -177,3 +181,6 @@ for n in nodos_dentro:
   vecinos[n - 1].append(n + 1)
   vecinos[n - 1].append(n + size)
   vecinos[n - 1].append(n - 1)
+
+gen_algorithm(nodos, num_aristas, vecinos, baldosas, 600, 600, 0.7, 0.01)
+  
