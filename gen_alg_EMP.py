@@ -18,39 +18,43 @@ def fitness(cromosoma, nodos, vecinos, baldosas):
         # Para cada nodo buscamos si hay alguna arista rota. Si
         # no la hay, el nodo está satisfecho y aumentamos un
         # unidad su valor. Si la hay, pasamos al siguiente nodo.
-        satisfecho = True
         vecinos_nodo = vecinos[nodo-1]
         num_vecinos = len(vecinos_nodo)
         # Obtenemos la baldosa del nodo en estudio en esta solución
         baldosa = baldosas[cromosoma[nodo-1]]
         j = 0
-        while satisfecho & (j < num_vecinos):
+        while  j < num_vecinos:
             # Recorremos cada vecino del nodo
             vecino = vecinos_nodo[j]
-            pos_nodo = vecinos[vecino-1].index(nodo)
-            # Obtenemos la baldosa del vecino en estudio en esta solución
-            baldosa_vecino = baldosas[cromosoma[vecino-1]]
-            # Comparamos los colores de la arista que tienen en común
-            if baldosa[j] != baldosa_vecino[pos_nodo]:
-                satisfecho = False
+            if nodo < vecino:
+                pos_nodo = vecinos[vecino - 1].index(nodo)
+                # Obtenemos la baldosa del vecino en estudio en esta solución
+                baldosa_vecino = baldosas[cromosoma[vecino - 1]]
+                # Comparamos los colores de la arista que tienen en común
+                if baldosa[j] != baldosa_vecino[pos_nodo]:
+                    fit += 1
+                j += 1
             else:
                 j += 1
-        if satisfecho:
-            fit += 1
     return fit
 
+def conversion_probabilidades(lst, x):
+    lst_2 = []
+    for i in lst:
+        lst_2.append(x-i)
+    return lst_2
 
-def gen_algorithm(nodos, vecinos, baldosas, n_p, max_rep, pc, pm):
+def gen_algorithm(nodos, num_aristas, vecinos, baldosas, n_p, max_rep, pc, pm):
     """
     Esta función es la que ejecuta el algoritmo genético
-    para obtener una solución del problema MAX NS3, con las
+    para obtener una solución del problema MIN AR, con las
     baldosas fijas
-    :param nodos: lista de nodos de la instancia de MAX NS3,
+    :param nodos: lista de nodos de la instancia de MIN AR,
     suponemos que se llaman 1,2,3... pero el nodo 1 no tiene
     por qué tener aridad 1, ni el 2 aridad 2, etc.
     :param vecinos: lista de listas de vecinos de los nodos de
-    la instancia de MAX NS3
-    :param baldosas: baldosas de la instancia de MAX NS3 (suponemos
+    la instancia de MIN AR
+    :param baldosas: baldosas de la instancia de MIN AR (suponemos
     que hay, al menos, una baldosa para cada nodo y que las baldosas
     están colocadas en el orden de los vecinos que obtenga el algoritmo,
     es decir, si el algoritmo saca la lista de vecinos para el nodo
@@ -132,7 +136,8 @@ def gen_algorithm(nodos, vecinos, baldosas, n_p, max_rep, pc, pm):
             lst = []
             for w in range(0, n_p):
                 lst.append(w)
-            padres_pos = random.choices(lst, valores_fitness, k=2)
+            valores_fitness_probs = conversion_probabilidades(valores_fitness, num_aristas)
+            padres_pos = random.choices(lst, valores_fitness_probs, k=2)
             padres = [cromosomas[padres_pos[0]], cromosomas[padres_pos[1]]]
             # Decidimos si se da una recombinación o no
             x = random.choices([0, 1], weights=[1 - pc, pc])
@@ -213,7 +218,6 @@ def gen_algorithm(nodos, vecinos, baldosas, n_p, max_rep, pc, pm):
         # Reemplazamos la antigua población con la nueva
         cromosomas = nueva_pob
         rep += 1
-    valor_max = max(valores_fitness)
-    ind_max = valores_fitness.index(valor_max)
-    print(valor_max)
-    return cromosomas[ind_max]
+    valor_min = min(valores_fitness)
+    ind_min = valores_fitness.index(valor_min)
+    return cromosomas[ind_min]
