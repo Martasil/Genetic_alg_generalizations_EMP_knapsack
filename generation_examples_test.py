@@ -1,5 +1,3 @@
-from gen_algorithm import gen_algorithm
-
 source_file = open("EMP_7x7_2_7_1.txt", "r")
 
 baldosas = []
@@ -180,6 +178,3 @@ for n in nodos_dentro:
   vecinos[n - 1].append(n + 1)
   vecinos[n - 1].append(n + size)
   vecinos[n - 1].append(n - 1)
-
-gen_algorithm(nodos, vecinos, baldosas, 200, 200, 0.7, 0.01)
-
