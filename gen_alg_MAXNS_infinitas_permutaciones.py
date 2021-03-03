@@ -1,7 +1,6 @@
 import random
 from itertools import permutations
 
-
 def fitness(cromosoma, nodos, vecinos, baldosas):
     """
     La función fitness calcula el valor
@@ -15,8 +14,7 @@ def fitness(cromosoma, nodos, vecinos, baldosas):
     :return: el número de nodos satisfechos de la solución
     """
     fit = 0
-    for n in nodos:
-        nodo = n
+    for nodo in nodos:
         # Para cada nodo buscamos si hay alguna arista rota. Si
         # no la hay, el nodo está satisfecho y aumentamos un
         # unidad su valor. Si la hay, pasamos al siguiente nodo.
@@ -29,7 +27,7 @@ def fitness(cromosoma, nodos, vecinos, baldosas):
         while satisfecho & (j < num_vecinos):
             # Recorremos cada vecino del nodo
             vecino = vecinos_nodo[j]
-            pos_nodo = vecinos[vecino-1].index(n)
+            pos_nodo = vecinos[vecino-1].index(nodo)
             # Obtenemos la baldosa del vecino en estudio en esta solución
             baldosa_vecino = baldosas[cromosoma[vecino-1][0]][cromosoma[vecino-1][1]]
             # Comparamos los colores de la arista que tienen en común
@@ -63,9 +61,9 @@ def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
     :return: devuelve una lista con las baldosas escogidas para
     cada nodo
     """
-    n = len(nodos)       # Número de nodos
-    n_b = len(baldosas)  # Número de baldosas
-    n_p = n_p            # Número de soluciones iniciales
+    num_nodos = len(nodos)      # Número de nodos
+    n_b = len(baldosas)  	# Número de baldosas
+    n_p = n_p            	# Número de soluciones iniciales
     # Creamos la lista de listas con todas las posibles
     # posiciones de cada baldosa
     baldosas_2 = []
@@ -89,9 +87,9 @@ def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
         l_b_orden[aridad - 1].append(i)
         i += 1
     # Obtenemos la aridad de cada nodo
-    l_aridades = [0] * n
+    l_aridades = [0] * num_nodos
     l_vecinos = []
-    while len(l_vecinos) < n:
+    while len(l_vecinos) < num_nodos:
         l_vecinos.append([])
     for a in aristas:
         v1 = a[0]
@@ -146,15 +144,15 @@ def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
             descendiente2 = []
             # Recombinación
             if x[0] == 1:
-                locus = random.randint(0, n - 1)
+                locus = random.randint(0, num_nodos - 1)
                 # Creamos a los dos descendientes
                 for j in range(locus):
                     descendiente1.append(padres[0][j])
-                for k in range(locus, n):
+                for k in range(locus, num_nodos):
                     descendiente1.append(padres[1][k])
                 for j in range(locus):
                     descendiente2.append(padres[1][j])
-                for k in range(locus, n):
+                for k in range(locus, num_nodos):
                     descendiente2.append(padres[0][k])
             # No se da recombinación, los descendientes
             # son una copia exacta de los padres
@@ -164,7 +162,7 @@ def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
             # Decidimos si el primer descenciente sufre una mutación o no
             y1 = random.choices([0, 1], weights=[1 - pm, pm])
             if y1[0] == 1:  # Mutación descendiente1
-                locus = random.randint(0, n - 1)
+                locus = random.randint(0, num_nodos - 1)
                 b_nueva = list()
                 b_nueva.append(random.choice(l_b_orden[l_aridades[locus] - 1]))
                 b_nueva.append(random.randint(0, l_aridades[locus] - 1))
@@ -172,7 +170,7 @@ def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
             # Decidimos si el segundo descenciente sufre una mutación o no
             y2 = random.choices([0, 1], weights=[1 - pm, pm])
             if y2[0] == 1:  # Mutación descendiente2
-                locus = random.randint(0, n - 1)
+                locus = random.randint(0, num_nodos - 1)
                 b_nueva = list()
                 b_nueva.append(random.choice(l_b_orden[l_aridades[locus] - 1]))
                 b_nueva.append(random.randint(0, l_aridades[locus] - 1))
