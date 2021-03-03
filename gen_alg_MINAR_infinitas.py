@@ -1,5 +1,4 @@
 import random
-import copy
 
 
 def fitness(cromosoma, aristas, vecinos, baldosas):
@@ -36,14 +35,14 @@ def conversion_probabilidades(lst, x):
 def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
     """
     Esta función es la que ejecuta el algoritmo genético
-    para obtener una solución del problema MIN AR con copias finitas
+    para obtener una solución del problema MIN AR con copias infinitas
     y con las baldosas fijas
     :param nodos: lista de nodos de la instancia de MIN AR,
     suponemos que se llaman 1,2,3... pero el nodo 1 no tiene
     por qué tener aridad 1, ni el 2 aridad 2, etc.
     :param aristas: aristas de la instancia de MIN AR
     :param baldosas: baldosas de la instancia de MIN AR (suponemos
-    que hay, al menos, una baldosa para cada nodo y que las baldosas
+    que hay, al menos, una baldosa válida para cada nodo y que las baldosas
     están colocadas en el orden de los vecinos que obtenga el algoritmo,
     es decir, si el algoritmo saca la lista de vecinos para el nodo
     3 como l = [2,1] y la baldosa en el nodo 3 es b = [a,b],
@@ -63,10 +62,6 @@ def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
     n_b = len(baldosas)          # Número de baldosas
     n_a = len(aristas)           # Número de aristas
     n_p = n_p                    # Número de soluciones iniciales
-    if n_b < num_nodos:
-        print("Los datos de entrada no son válidos. Debe haber, al menos, "
-              "una baldosa para cada nodo.")
-        return 1
     # Separamos las baldosas en listas dependiendo de su aridad
     l_b_orden = []
     impar = 0
@@ -104,15 +99,9 @@ def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
     cromosomas = []
     valores_fitness = []
     while len(cromosomas) < n_p:
-        x = [0]*num_nodos
-        for grupo in l_nodos_orden:
-            n_grupo = len(grupo)
-            if n_grupo > 0:
-                baldosas_grupo = random.sample(l_b_orden[l_aridades[grupo[0]-1]-1], n_grupo)
-                j = 0
-                while j < n_grupo:
-                    x[grupo[j]-1] = baldosas_grupo[j]
-                    j += 1
+        x = []
+        for n in nodos:
+            x.append(random.choice(l_b_orden[l_aridades[n-1]-1]))
         cromosomas.append(x)
     rep = 0
     while rep < max_rep:
@@ -142,38 +131,16 @@ def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
             # Recombinación
             if x[0] == 1:
                 locus = random.randint(0, num_nodos - 1)
-                l_b_orden_descendiente_1 = copy.deepcopy(l_b_orden)
                 # Creamos a los dos descendientes
                 for j in range(locus):
-                    ar_nodo = l_aridades[j]
                     descendiente1.append(padres[0][j])
-                    l_b_orden_descendiente_1[ar_nodo - 1].remove(padres[0][j])
                 for k in range(locus, num_nodos):
-                    ar_nodo = l_aridades[k]
-                    # Si una baldosa ya ha sido elegida, elegimos una de las disponibles
-                    if padres[1][k] not in l_b_orden_descendiente_1[ar_nodo-1]:
-                        b_nueva = random.choice(l_b_orden_descendiente_1[ar_nodo - 1])
-                        descendiente1.append(b_nueva)
-                        l_b_orden_descendiente_1[ar_nodo-1].remove(b_nueva)
-                    else:
-                        descendiente1.append(padres[1][k])
-                        l_b_orden_descendiente_1[ar_nodo - 1].remove(padres[1][k])
-                l_b_orden_descendiente_2 = copy.deepcopy(l_b_orden)
+                    descendiente1.append(padres[1][k])
                 for j in range(locus):
-                    ar_nodo = l_aridades[j]
                     descendiente2.append(padres[1][j])
-                    l_b_orden_descendiente_2[ar_nodo - 1].remove(padres[1][j])
                 for k in range(locus, num_nodos):
-                    ar_nodo = l_aridades[k]
-                    # Si una baldosa ya ha sido elegida, elegimos una de las disponibles
-                    if padres[0][k] not in l_b_orden_descendiente_2[ar_nodo-1]:
-                        b_nueva = random.choice(l_b_orden_descendiente_2[ar_nodo - 1])
-                        descendiente2.append(b_nueva)
-                        l_b_orden_descendiente_2[ar_nodo - 1].remove(b_nueva)
-                    else:
-                        descendiente2.append(padres[0][k])
-                        l_b_orden_descendiente_2[ar_nodo - 1].remove(padres[0][k])
-            # No se da recombinación, los descendientes
+                    descendiente2.append(padres[0][k])
+            # No recombinación, los descendientes
             # son una copia exacta de los padres
             else:
                 descendiente1 = padres[0]
@@ -182,28 +149,12 @@ def gen_algorithm(nodos, aristas, baldosas, n_p, max_rep, pc, pm):
             y1 = random.choices([0, 1], weights=[1 - pm, pm])
             if y1[0] == 1:  # Mutación descendiente1
                 locus = random.randint(0, num_nodos - 1)
-                # Lista de baldosas libres para descendiente1 ordenadas por aridad
-                l_b_orden_2 = copy.deepcopy(l_b_orden)
-                k = 0
-                while k < num_nodos:
-                    if k != locus:
-                        ar = l_aridades[k]
-                        l_b_orden_2[ar-1].remove(descendiente1[k])
-                    k += 1
-                descendiente1[locus] = random.choice(l_b_orden_2[l_aridades[locus]-1])
+                descendiente1[locus] = random.choice(l_b_orden[l_aridades[locus]-1])
             # Decidimos si el segundo descenciente sufre una mutación o no
             y2 = random.choices([0, 1], weights=[1 - pm, pm])
             if y2[0] == 1:  # Mutación descendiente2
                 locus = random.randint(0, num_nodos - 1)
-                # Lista de baldosas libres para descendiente2 ordenadas por aridad
-                l_b_orden_3 = copy.deepcopy(l_b_orden)
-                k = 0
-                while k < num_nodos:
-                    if k != locus:
-                        ar = l_aridades[k]
-                        l_b_orden_3[ar-1].remove(descendiente2[k])
-                    k += 1
-                descendiente2[locus] = random.choice(l_b_orden_3[l_aridades[locus]-1])
+                descendiente2[locus] = random.choice(l_b_orden[l_aridades[locus]-1])
             # Incluimos los nuevos descendientes en la nueva población
             nueva_pob.append(descendiente1)
             nueva_pob.append(descendiente2)
