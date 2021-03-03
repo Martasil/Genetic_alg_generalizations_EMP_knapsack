@@ -1,0 +1,135 @@
+import random
+import numpy
+
+
+def fitness(a, b, c, x):
+    """
+    La función fitness calcula el
+    valor de un cromosoma (una posible solución).
+    Argumentos de entrada:
+    :param a: el vector de beneficios
+    :param b: el peso máximo
+    :param c: el vector de pesos
+    :param x: el cromosoma cuyo valor queremos conocer
+    :return: un número flotante que
+            representa el valor de la solución
+    """
+    beneficio = numpy.dot(a, x)
+    peso = numpy.dot(c, x)
+    if peso <= b:
+        return float(beneficio)
+    else:
+        if beneficio == 0:
+            return 0
+        else:
+            return b-peso
+
+
+def gen_alg_knapsack(a, b, c, n, max_rep, pc, pm):
+    """
+    Esta función es la que ejecuta el algoritmo que
+    utilizamos para resolver el problema de la mochila
+    :param a: el vector de beneficios
+    :param b: el peso máximo
+    :param c: el vector de pesos
+    :param n: el número de cromosomas que tiene la población
+    :param max_rep: el número de veces que se va
+    a ejecutar el algoritmo (número de generaciones)
+    :param pc: la probabilidad de recombinación
+    :param pm: la probabilidad de mutación
+    Asumimos que todos los beneficios, pesos, el peso
+    máximo, el número de cromosomas y el número de repeticiones
+    son > 0. Asimismo pc y pm pertenecen a [0,1].
+    :return: un cromosoma solución del problema de la mochila
+            (la mejor solución que ha encontrado el algoritmo
+             a partir de la población aleatoria de partida)
+    """
+    l_a = len(a)
+    impar = 0
+    if n % 2 != 0:
+        impar = 1
+    if l_a != len(c):
+        print("Los datos de entrada no son válidos. "
+              "Los vectores a y c deberían tener el mismo número de"
+              "elementos.")
+    else:
+        # Creamos una lista de cromosomas generados aleatoriamente
+        cromosomas = []
+        valores_fitness = []
+        while len(cromosomas) < n:
+            x = []
+            while (len(x)) < l_a:
+                x.append(random.randint(0, 1))
+            cromosomas.append(x)
+        rep = 0
+        while rep < max_rep:
+            # Calculamos el valor de cada cromosoma y lo almacenamos en una lista
+            valores_fitness = []
+            i = 0
+            while len(valores_fitness) < n:
+                valores_fitness.append(fitness(a, b, c, cromosomas[i]))
+                i += 1
+            # Creamos una nueva población en la que
+            # iremos añadiendo los descendientes de nuestra actual población
+            nueva_pob = []
+            # Ajustamos los valores de los cromosomas
+            # para que sean todos mayores o iguales que 0
+            offset = min(valores_fitness)
+            probs_positivas = [f - offset for f in valores_fitness]
+            while len(nueva_pob) < n:
+                # Elegimos a una pareja de progenitores
+                lst = []
+                for w in range(0, n):
+                    lst.append(w)
+                padres_pos = random.choices(lst, weights=probs_positivas, k=2)
+                padres = [cromosomas[padres_pos[0]], cromosomas[padres_pos[1]]]
+                # Decidimos si se da una recombinación o no
+                x = random.choices([0, 1], weights=[1-pc, pc])
+                descendiente1 = []
+                descendiente2 = []
+                # Recombinación
+                if x[0] == 1: 
+                    locus = random.randint(0, l_a - 1)
+                    # Creamos a los dos descendientes
+                    for j in range(locus):
+                        descendiente1.append(padres[0][j])
+                    for k in range(locus, l_a):
+                        descendiente1.append(padres[1][k])
+                    for j in range(locus):
+                        descendiente2.append(padres[1][j])
+                    for k in range(locus, l_a):
+                        descendiente2.append(padres[0][k])
+                # No se da recombinación, los descendientes
+                # son una copia exacta de los padres
+                else:
+                    descendiente1 = padres[0]
+                    descendiente2 = padres[1]
+                # Decidimos si el primer descenciente sufre una mutación o no
+                y1 = random.choices([0, 1], weights=[1 - pm, pm])
+                if y1[0] == 1:       # Mutación descendiente1
+                    locus = random.randint(0, l_a - 1)
+                    if descendiente1[locus] == 0:
+                        descendiente1[locus] = 1
+                    else:
+                        descendiente1[locus] = 0
+                # Decidimos si el segundo descenciente sufre una mutación o no
+                y2 = random.choices([0, 1], weights=[1 - pm, pm])
+                if y2[0] == 1:       # Mutación descendiente2
+                    locus = random.randint(0, l_a - 1)
+                    if descendiente2[locus] == 0:
+                        descendiente2[locus] = 1
+                    else:
+                        descendiente2[locus] = 0
+                # Incluimos los nuevos descendientes en la nueva población
+                nueva_pob.append(descendiente1)
+                nueva_pob.append(descendiente2)
+            # Si la población es impar, eliminamos un
+            # elemento aleatoriamente (el último elemento, por ejemplo)
+            if impar:
+                nueva_pob.pop()
+            # Reemplazamos la antigua población con la nueva
+            cromosomas = nueva_pob
+            rep += 1
+        valor_max = max(valores_fitness)
+        ind_max = valores_fitness.index(valor_max)
+        return cromosomas[ind_max]
